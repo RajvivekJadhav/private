@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f8f5ee" />
+  <title>A Little Note for You</title>
+  <style>
+    :root {
+      --cream: #f8f5ee;
+      --paper: #fffefa;
+      --sage: #91a68a;
+      --sage-dark: #62795d;
+      --ink: #403d36;
+      --muted: #77766d;
+      --line: #e8e4d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: 24px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 15% 12%, rgba(145,166,138,.14), transparent 28%),
+        radial-gradient(circle at 88% 85%, rgba(145,166,138,.12), transparent 30%),
+        var(--cream);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .page {
+      width: min(100%, 430px);
+      text-align: center;
+      animation: appear .8s ease both;
+    }
+
+    .sparkles {
+      color: var(--sage-dark);
+      letter-spacing: 13px;
+      padding-left: 13px;
+      font-size: 18px;
+      margin-bottom: 22px;
+      opacity: .8;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 8vw, 38px);
+      line-height: 1.2;
+      font-weight: 650;
+      letter-spacing: -.8px;
+    }
+
+    .subtitle {
+      margin: 14px 0 28px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .reassurance {
+      display: inline-block;
+      margin-top: 5px;
+      color: var(--sage-dark);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    .letter-card {
+      position: relative;
+      overflow: hidden;
+      padding: 27px 22px 25px;
+      border: 1px solid rgba(98,121,93,.16);
+      border-radius: 22px;
+      background: rgba(255,254,250,.94);
+      box-shadow: 0 16px 40px rgba(64,61,54,.08);
+    }
+
+    .letter-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #c6d2bd, var(--sage), #c6d2bd);
+    }
+
+    .card-title {
+      margin: 0 0 22px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 23px;
+      min-height: 48px;
+      background: var(--sage-dark);
+      color: white;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(98,121,93,.2);
+      transition: transform .18s ease, background .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover { background: #53694e; }
+    button:active { transform: scale(.97); }
+    button:focus-visible { outline: 3px solid #c6d2bd; outline-offset: 4px; }
+
+    .note {
+      display: none;
+      position: relative;
+      margin-top: 18px;
+      padding: 34px 22px 30px 34px;
+      text-align: left;
+      border: 1px solid #e5ddca;
+      border-radius: 4px 3px 5px 2px;
+      background:
+        linear-gradient(90deg, transparent 0, transparent 24px, rgba(197,127,118,.28) 24px, rgba(197,127,118,.28) 25px, transparent 25px),
+        repeating-linear-gradient(to bottom, #fffdf5 0, #fffdf5 30px, #dce4df 31px, #fffdf5 32px);
+      box-shadow: 2px 8px 18px rgba(64,61,54,.12), 0 2px 3px rgba(64,61,54,.05);
+      font-size: 16px;
+      line-height: 2;
+      overflow-wrap: anywhere;
+      transform: rotate(-.35deg);
+    }
+
+    .note::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: linear-gradient(to bottom, rgba(128,112,82,.08), transparent);
+      pointer-events: none;
+    }
+
+    .note.show {
+      display: block;
+      animation: appear .45s ease both;
+    }
+
+    .note p {
+      margin: 0 0 17px;
+      position: relative;
+      z-index: 1;
+    }
+    .note p:last-child { margin-bottom: 0; }
+    .signoff { color: var(--sage-dark); }
+
+    .music-control {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin: 18px auto 0;
+      padding: 10px 14px;
+      border: 1px solid rgba(98,121,93,.2);
+      border-radius: 999px;
+      background: rgba(255,254,250,.8);
+      color: var(--sage-dark);
+      font-size: 13px;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .music-control.show { display: flex; animation: appear .45s ease both; }
+
+    .music-toggle {
+      min-height: 38px;
+      width: 38px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 15px;
+      box-shadow: none;
+      flex: 0 0 auto;
+    }
+
+    .footer {
+      margin-top: 22px;
+      color: #89877d;
+      font-size: 12px;
+      letter-spacing: .2px;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(9px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 360px) {
+      body { padding: 18px 12px; }
+      .letter-card { padding-left: 18px; padding-right: 18px; }
+      .note { padding-left: 31px; padding-right: 15px; }
+      .subtitle { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="sparkles" aria-hidden="true">✳ ✦ ✳</div>
+    <h1>Hey bro</h1>
+    <p class="subtitle">a little note for you...<br><span class="reassurance">don’t fear, it’s not a confession again 😅</span></p>
+
+    <section class="letter-card" aria-label="Open the note">
+      <h2 class="card-title">A little note for you...</h2>
+      <button id="openNote" type="button" aria-expanded="false" aria-controls="note">
+        Open note
+      </button>
+    </section>
+
+    <div class="music-control" id="musicControl">
+      <button class="music-toggle" id="musicToggle" type="button" aria-label="Pause piano music">Ⅱ</button>
+      <span id="musicLabel">soft piano · playing</span>
+    </div>
+
+    <article class="note" id="note" aria-live="polite">
+      <p>Hi bro, ever since we started talking again, I have realised a thing, its about my ignore, ignore game. I have thought about it, and came to a point when I realised that even though, I was going through a lot of things at that time and honestly, I didnt really knew how to handle everything. But looking back, I realise that the way I dealt with things might have hurted you too. Maybe I should have communicated better instead of just distancing myself.</p>
+
+      <p>I'm not saying I was wrong for needing space, but I feel I could've handled the situation better. We were good friends (I hope we still are). U didnt deserve to be treated like that without an explanation. I'm genuinely sorry for it, this note is not to impress u, but because I felt I owed u an honest apology. I know me writing this wont undo what happened but its a sincere apology to a friend from a friend without expecting anything in return.</p>
+
+      <p>I know this note might embarass me later but I think it was worth writing, u can laugh at it if u want 😅 but I wanted to share it with u. I'm glad we're talking again, and I genuinely value our friendship, that's all sorry again.</p>
+    </article>
+
+    <div class="footer">made with care ✦</div>
+  </main>
+
+  <script>
+    const button = document.getElementById("openNote");
+    const note = document.getElementById("note");
+    const musicControl = document.getElementById("musicControl");
+    const musicToggle = document.getElementById("musicToggle");
+    const musicLabel = document.getElementById("musicLabel");
+
+    let audioContext = null;
+    let musicTimer = null;
+    let musicPlaying = false;
+    let noteOpenedOnce = false;
+    let noteIndex = 0;
+
+    // A quiet, original piano-like motif generated in-browser; no external song or file required.
+    const melody = [
+      [261.63, 329.63, 392.00], [293.66, 349.23, 440.00],
+      [261.63, 329.63, 392.00], [220.00, 293.66, 349.23],
+      [246.94, 329.63, 392.00], [293.66, 369.99, 440.00],
+      [261.63, 329.63, 392.00], [196.00, 261.63, 329.63]
+    ];
+
+    function playChord(chord) {
+      if (!audioContext || !musicPlaying) return;
+      const now = audioContext.currentTime;
+      chord.forEach((frequency, index) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequency, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(index === 0 ? 0.045 : 0.022, now + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(now);
+        osc.stop(now + 1.55);
+      });
+    }
+
+    async function startMusic() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          musicLabel.textContent = "piano music isn't supported in this browser";
+          return;
+        }
+        if (!audioContext) audioContext = new AudioContextClass();
+        await audioContext.resume();
+        musicPlaying = true;
+        playChord(melody[noteIndex % melody.length]);
+        noteIndex++;
+        musicTimer = window.setInterval(() => {
+          playChord(melody[noteIndex % melody.length]);
+          noteIndex++;
+        }, 1650);
+        musicToggle.textContent = "Ⅱ";
+        musicToggle.setAttribute("aria-label", "Pause piano music");
+        musicLabel.textContent = "soft piano · playing";
+      } catch (error) {
+        musicLabel.textContent = "tap play to start the piano";
+      }
+    }
+
+    function stopMusic() {
+      musicPlaying = false;
+      if (musicTimer) window.clearInterval(musicTimer);
+      musicTimer = null;
+      if (audioContext && audioContext.state === "running") audioContext.suspend();
+      musicToggle.textContent = "▶";
+      musicToggle.setAttribute("aria-label", "Play piano music");
+      musicLabel.textContent = "soft piano · paused";
+    }
+
+    button.addEventListener("click", async () => {
+      const isOpen = note.classList.toggle("show");
+      button.setAttribute("aria-expanded", String(isOpen));
+      button.textContent = isOpen ? "Close note" : "Open note";
+
+      if (isOpen) {
+        musicControl.classList.add("show");
+        if (!noteOpenedOnce) {
+          noteOpenedOnce = true;
+          await startMusic();
+        }
+        window.setTimeout(() => note.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      } else {
+        // Keep the music playing if the note is closed; the player remains available.
+      }
+    });
+
+    musicToggle.addEventListener("click", async () => {
+      if (musicPlaying) stopMusic();
+      else await startMusic();
+    });
+  </script>
+</body>
+</html>
